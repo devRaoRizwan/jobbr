@@ -1,6 +1,8 @@
 /venv
 .env
 
+# DB
+*.sqlite3
 
 # Python-specific
 __pycache__/
