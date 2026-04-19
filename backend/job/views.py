@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.generics import ListCreateAPIView , RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated , AllowAny
+from .permissions import IsEmployer , IsOwner
 from .models import Job
 from .serializers import Job_Serializer
 
@@ -14,7 +15,11 @@ class JobList(ListCreateAPIView):
     def get_permissions(self):
         if self.request.method == "GET":
             return[AllowAny()]
+        
+        if self.request.method == "POST":
+            return[IsEmployer()]
         return [IsAuthenticated()]
+
             
     
     def perform_create(self, serializer):
@@ -25,3 +30,8 @@ class JobModify(RetrieveUpdateDestroyAPIView):
     queryset = Job.objects.all()
     serializer_class = Job_Serializer
     lookup_field = "pk"
+    
+    def get_permissions(self):
+        if self.request.method == "GET" :
+            return[AllowAny()]
+        return[IsOwner()]
