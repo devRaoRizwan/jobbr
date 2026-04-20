@@ -106,6 +106,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# file upload storage
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR , 'media')
+
 # Custom UserModels 
 AUTH_USER_MODEL = 'accounts.User'
 
