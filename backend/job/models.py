@@ -38,3 +38,11 @@ class Application(models.Model):
     
     def __str__(self):
         return f"{self.applicant} applied to {self.job}"
+    
+class Bookmark(models.Model):
+    job = models.ForeignKey(Job , on_delete= models.CASCADE)
+    user = models.ForeignKey(User , on_delete= models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add= True)
+    
+    class Meta :
+        unique_together = ('job' , 'user')

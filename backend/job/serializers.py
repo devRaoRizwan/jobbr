@@ -1,8 +1,14 @@
 from rest_framework import serializers
-from .models import Job , Application
+from .models import Job , Application , Bookmark
+from accounts.models import User 
 
-
+class Employer_Serializer(serializers.ModelSerializer):
+    class Meta :
+        model = User 
+        fields = ['id' , 'username']
+        
 class Job_Serializer(serializers.ModelSerializer):
+    employer_user = Employer_Serializer(read_only = True)
     class Meta :
         model = Job
         fields = "__all__"
@@ -22,3 +28,8 @@ class ApplicationStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
         fields = ['status']
+        
+class Bookmark_Serializer(serializers.ModelSerializer):
+    class Meta :
+        model = Bookmark
+        fields = ['job' , 'created_at']

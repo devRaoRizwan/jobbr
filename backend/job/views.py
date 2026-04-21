@@ -1,11 +1,17 @@
 from django.shortcuts import render
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import ListCreateAPIView , RetrieveUpdateDestroyAPIView , UpdateAPIView
 from rest_framework.permissions import IsAuthenticated , AllowAny
 from .permissions import IsEmployer , IsOwner , IsJobseeker
-from .models import Job , Application
-from .serializers import Job_Serializer , Application_Serializer , ApplicationStatusSerializer
+from .models import Job , Application , Bookmark
+from .serializers import Job_Serializer , Application_Serializer , ApplicationStatusSerializer , Bookmark_Serializer
 from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
+ 
 
 
 # Create your views here.
@@ -14,6 +20,11 @@ from rest_framework.exceptions import ValidationError
 class JobList(ListCreateAPIView):
     queryset = Job.objects.filter(is_closed = False)
     serializer_class = Job_Serializer
+    filter_backends = [DjangoFilterBackend , SearchFilter , OrderingFilter]
+    filterset_fields = ['job_type' , 'location' , 'salary_period']
+    search_fields = ['title' , 'description']
+    ordering_fields = ['salary' , 'created_at' , 'deadline']
+    ordering = ['-created_at']
     
     def get_permissions(self):
         if self.request.method == "GET":
@@ -76,5 +87,20 @@ class UpdateApplicationStatus(UpdateAPIView):
             raise ValidationError({"detail": "You are not the owner of this job."})
         return application
         
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def bookmark_toggle(request , pk):
+    job = get_object_or_404(Job , pk = pk)
+    bookmark = Bookmark.objects.filter(job = job , user = request.user).first()
+    
+    if bookmark :
+        bookmark.delete()
+        return Response({"detail": "Bookmark removed."}, status=status.HTTP_200_OK)
+    Bookmark.objects.create(job = job , user = request.user)
+    return Response({"detail": "Bookmarked successfully."}, status=status.HTTP_201_CREATED)
+
+
+
             
         
